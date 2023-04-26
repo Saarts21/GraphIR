@@ -21,9 +21,9 @@ enum VertexKind {
     Call = 'Call',
 }
 
-interface Vertex {
+export interface Vertex {
     kind: VertexKind;
-    isComplete(): boolean;
+    verify(): boolean;
 }
 
 interface DataVertex extends Vertex {
@@ -38,7 +38,7 @@ class LiteralVertex implements DataVertex {
         this.value = value;
     }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return this.value !== undefined;
     }
 }
@@ -46,7 +46,7 @@ class LiteralVertex implements DataVertex {
 class ParameterVertex implements DataVertex {
     get kind() { return VertexKind.Parameter; }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return true;
     }
 }
@@ -62,7 +62,7 @@ abstract class UnaryOperationVertex implements DataVertex {
         this.operand = operand;
     }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return this.operator !== undefined && this.operand !== undefined;
     }
 }
@@ -88,7 +88,7 @@ class BinaryOperationVertex implements DataVertex {
         this.right = right;
     }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return this.operator !== undefined && this.left !== undefined && this.right !== undefined;
     }
 }
@@ -115,7 +115,7 @@ class PhiVertex implements DataVertex {
         this.operands.push(operand);
     }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return this.merge !== undefined && this.operands.length > 1;
     }
 }
@@ -132,7 +132,7 @@ abstract class NonTerminalControlVertex implements ControlVertex {
         this.next = next;
     }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return this.next !== undefined;
     }
 }
@@ -154,7 +154,7 @@ class ReturnVertex implements ControlVertex {
         this.value = value;
     }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return true;
     }
 }
@@ -172,7 +172,7 @@ class BranchVertex implements ControlVertex {
         this.falseNext = falseNext;
     }
 
-    isComplete(): boolean {
+    verify(): boolean {
         return this.condition !== undefined && this.trueNext !== undefined && this.falseNext !== undefined;
     }
 }
@@ -203,8 +203,8 @@ class StoreVertex extends PassVertex {
         this.value = value;
     }
 
-    isComplete(): boolean {
-        return this.object !== undefined && this.property !== undefined && this.value !== undefined && super.isComplete();
+    verify(): boolean {
+        return this.object !== undefined && this.property !== undefined && this.value !== undefined && super.verify();
     }
 }
 
@@ -220,8 +220,8 @@ class LoadVertex extends PassVertex implements DataVertex {
         this.property = property;
     }
 
-    isComplete(): boolean {
-        return this.object !== undefined && this.property !== undefined && super.isComplete();
+    verify(): boolean {
+        return this.object !== undefined && this.property !== undefined && super.verify();
     }
 }
 
@@ -239,7 +239,7 @@ class CallVertex extends PassVertex implements DataVertex {
         this.callerObject = callerObject;
     }
 
-    isComplete(): boolean {
-        return this.callee !== undefined && this.args !== undefined && super.isComplete();
+    verify(): boolean {
+        return this.callee !== undefined && this.args !== undefined && super.verify();
     }
 }
