@@ -1,0 +1,42 @@
+
+import { Vertex } from './vertex';
+
+class Graph {
+    private vertices: Array<Vertex> = [];
+    private subgraphs: Array<Graph> = [];
+    private startVertex?: Vertex;
+
+    public addVertex(vertex: Vertex): void {
+        this.vertices.push(vertex); //TODO: check if vertex already exists
+    }
+
+    public addSubgraph(subgraph: Graph): void {
+        this.subgraphs.push(subgraph); //TODO: check for cycles
+    }
+
+    public setStartVertex(vertex: Vertex): void {
+        this.startVertex = vertex;
+        this.addVertex(vertex);
+    }
+
+    public verify(): boolean {
+        if (this.startVertex === undefined) {
+            return false;
+        }
+
+        for (const vertex of this.vertices) {
+            if (!vertex.verify()) {
+                return false;
+            }
+        }
+
+        for (const subgraph of this.subgraphs) {
+            if (!subgraph.verify()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
+
