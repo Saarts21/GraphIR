@@ -145,14 +145,6 @@ class PassVertex extends NonTerminalControlVertex {
     get kind() { return VertexKind.Pass; }
 }
 
-class EndVertex implements ControlVertex {
-    get kind() { return VertexKind.End; }
-
-    isComplete(): boolean {
-        return true;
-    }
-}
-
 class ReturnVertex implements ControlVertex {
     get kind() { return VertexKind.Return; }
 
@@ -163,7 +155,7 @@ class ReturnVertex implements ControlVertex {
     }
 
     isComplete(): boolean {
-        return this.value !== undefined;
+        return true;
     }
 }
 
