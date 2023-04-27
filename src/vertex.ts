@@ -63,8 +63,14 @@ export class SymbolVertex implements DataVertex {
 export class ParameterVertex implements DataVertex {
     get kind() { return VertexKind.Parameter; }
 
+    public position?: number;
+
+    constructor(position?: number) {
+        this.position = position;
+    }
+
     verify(): boolean {
-        return true;
+        return this.position !== undefined;
     }
 }
 
