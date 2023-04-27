@@ -4,6 +4,7 @@ export type Operator = string
 
 export enum VertexKind {
     Literal = 'Literal',
+    Symbol = 'Symbol',
     Parameter = 'Parameter',
     PrefixUnaryOperation = 'PrefixUnaryOperation',
     PostfixUnaryOperation = 'PostfixUnaryOperation',
@@ -40,6 +41,22 @@ export class LiteralVertex implements DataVertex {
 
     verify(): boolean {
         return this.value !== undefined;
+    }
+}
+
+export class SymbolVertex implements DataVertex {
+    get kind() { return VertexKind.Symbol; }
+
+    public name?: string;
+    public startVertex?: StartVertex;
+
+    constructor(name?: string, startVertex?: StartVertex) {
+        this.name = name;
+        this.startVertex = startVertex;
+    }
+
+    verify(): boolean {
+        return this.name !== undefined && this.startVertex !== undefined;
     }
 }
 
