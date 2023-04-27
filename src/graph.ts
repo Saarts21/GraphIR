@@ -1,10 +1,24 @@
 
-import { Vertex } from './vertex';
+import { Vertex, StartVertex } from './vertex';
 
-class Graph {
+export class Graph {
     private vertices: Array<Vertex> = [];
+    private startVertex?: StartVertex;
     private subgraphs: Array<Graph> = [];
-    private startVertex?: Vertex;
+
+    constructor(vertices?: Array<Vertex>, startVertex?: StartVertex, subgraphs?: Array<Graph>) {
+        if (vertices !== undefined) {
+            this.vertices = vertices;
+        }
+
+        if (startVertex !== undefined) {
+            this.startVertex = startVertex;
+        }
+
+        if (subgraphs !== undefined) {
+            this.subgraphs = subgraphs;
+        }
+    }
 
     public addVertex(vertex: Vertex): void {
         this.vertices.push(vertex); //TODO: check if vertex already exists
@@ -40,3 +54,4 @@ class Graph {
     }
 }
 
+export * from './vertex';
