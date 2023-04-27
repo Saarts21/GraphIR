@@ -207,7 +207,7 @@ export class MergeVertex extends NonTerminalControlVertex { // ? should add corr
 export class AllocationVertex extends PassVertex implements DataVertex {
     get kind() { return VertexKind.Allocation; }
 
-    constructor(next: ControlVertex) {
+    constructor(next?: ControlVertex) {
         super(next);
     }
 }
