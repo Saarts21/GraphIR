@@ -8,5 +8,8 @@
   },
   "author": "",
   "license": "ISC",
-  "types": "dist/dts/graph.d.ts"
+  "types": "dist/dts/graph.d.ts",
+  "dependencies": {
+    "@types/node": "^18.16.2"
+  }
 }
