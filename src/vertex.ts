@@ -2,6 +2,12 @@
 export type Value = number | string | boolean
 export type Operator = string
 
+export enum VertexCategory {
+    Data = 'Data',
+    Control = 'Control',
+    Compound = 'Compound'
+}
+
 export enum VertexKind {
     Literal = 'Literal',
     Symbol = 'Symbol',
@@ -24,14 +30,17 @@ export enum VertexKind {
 
 export interface Vertex {
     kind: VertexKind;
+    category: VertexCategory;
     verify(): boolean;
 }
 
 export interface DataVertex extends Vertex {
+    category: VertexCategory.Data | VertexCategory.Compound;
 }
 
 export class LiteralVertex implements DataVertex {
     get kind() { return VertexKind.Literal; }
+    get category(): VertexCategory.Data { return VertexCategory.Data; }
 
     public value?: Value;
 
@@ -46,6 +55,7 @@ export class LiteralVertex implements DataVertex {
 
 export class SymbolVertex implements DataVertex {
     get kind() { return VertexKind.Symbol; }
+    get category(): VertexCategory.Data { return VertexCategory.Data; }
 
     public name?: string;
     public startVertex?: StartVertex;
@@ -62,6 +72,7 @@ export class SymbolVertex implements DataVertex {
 
 export class ParameterVertex implements DataVertex {
     get kind() { return VertexKind.Parameter; }
+    get category(): VertexCategory.Data { return VertexCategory.Data; }
 
     public position?: number;
 
@@ -76,6 +87,7 @@ export class ParameterVertex implements DataVertex {
 
 export abstract class UnaryOperationVertex implements DataVertex {
     abstract get kind(): VertexKind;
+    get category(): VertexCategory.Data { return VertexCategory.Data; }
 
     public operator?: Operator;
     public operand?: DataVertex;
@@ -100,6 +112,7 @@ export class PostfixUnaryOperationVertex extends UnaryOperationVertex {
 
 export class BinaryOperationVertex implements DataVertex {
     get kind() { return VertexKind.BinaryOperation; }
+    get category(): VertexCategory.Data { return VertexCategory.Data; }
 
     public operator?: Operator;
     public left?: DataVertex;
@@ -120,6 +133,7 @@ export type PhiOperand = {value: DataVertex, srcBranch: ControlVertex};
 
 export class PhiVertex implements DataVertex {
     get kind() { return VertexKind.Phi; }
+    get category(): VertexCategory.Data { return VertexCategory.Data; }
 
     public readonly operands: Array<PhiOperand>;
     public merge?: MergeVertex;
@@ -144,10 +158,12 @@ export class PhiVertex implements DataVertex {
 }
 
 export interface ControlVertex extends Vertex {
+    category: VertexCategory.Control | VertexCategory.Compound;
 }
 
 export abstract class NonTerminalControlVertex implements ControlVertex {
     abstract get kind(): VertexKind;
+    abstract get category(): VertexCategory.Control | VertexCategory.Compound;
 
     public next?: ControlVertex;
 
@@ -162,14 +178,17 @@ export abstract class NonTerminalControlVertex implements ControlVertex {
 
 export class StartVertex extends NonTerminalControlVertex {
     get kind() { return VertexKind.Start; }
+    get category(): VertexCategory.Control { return VertexCategory.Control; }
 }
 
 export class PassVertex extends NonTerminalControlVertex {
     get kind() { return VertexKind.Pass; }
+    get category(): VertexCategory.Control | VertexCategory.Compound { return VertexCategory.Control; }
 }
 
 export class ReturnVertex implements ControlVertex {
     get kind() { return VertexKind.Return; }
+    get category(): VertexCategory.Control { return VertexCategory.Control; }
 
     public value?: DataVertex;
 
@@ -184,6 +203,7 @@ export class ReturnVertex implements ControlVertex {
 
 export class BranchVertex implements ControlVertex {
     get kind() { return VertexKind.Branch; }
+    get category(): VertexCategory.Control { return VertexCategory.Control; }
 
     public condition?: DataVertex;
     public trueNext?: ControlVertex;
@@ -202,10 +222,12 @@ export class BranchVertex implements ControlVertex {
 
 export class MergeVertex extends NonTerminalControlVertex { // ? should add corresponding branch?
     get kind() { return VertexKind.Merge; }
+    get category(): VertexCategory.Control { return VertexCategory.Control; }
 }
 
 export class AllocationVertex extends PassVertex implements DataVertex {
     get kind() { return VertexKind.Allocation; }
+    get category(): VertexCategory.Compound { return VertexCategory.Compound; }
 
     public objectType?: string;
     public constructorSymbol?: SymbolVertex;
@@ -223,6 +245,7 @@ export class AllocationVertex extends PassVertex implements DataVertex {
 
 export class StoreVertex extends PassVertex {
     get kind() { return VertexKind.Store; }
+    get category(): VertexCategory.Control { return VertexCategory.Control; }
 
     public object?: DataVertex;
     public property?: DataVertex;
@@ -242,6 +265,7 @@ export class StoreVertex extends PassVertex {
 
 export class LoadVertex extends PassVertex implements DataVertex {
     get kind() { return VertexKind.Load; }
+    get category(): VertexCategory.Compound { return VertexCategory.Compound; }
 
     public object?: DataVertex;
     public property?: DataVertex;
@@ -259,6 +283,7 @@ export class LoadVertex extends PassVertex implements DataVertex {
 
 export class CallVertex extends PassVertex implements DataVertex {
     get kind() { return VertexKind.Call; }
+    get category(): VertexCategory.Compound { return VertexCategory.Compound; }
 
     public callee?: DataVertex;
     public args?: Array<DataVertex>;

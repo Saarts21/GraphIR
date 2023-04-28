@@ -28,7 +28,7 @@ export class Graph {
         this.subgraphs.push(subgraph); //TODO: check for cycles
     }
 
-    public setStartVertex(vertex: Vertex): void {
+    public setStartVertex(vertex: StartVertex): void {
         this.startVertex = vertex;
         this.addVertex(vertex);
     }
