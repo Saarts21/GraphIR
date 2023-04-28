@@ -105,7 +105,7 @@ export class BinaryOperationVertex implements DataVertex {
     public left?: DataVertex;
     public right?: DataVertex;
 
-    constructor(operator: Operator, left: DataVertex, right: DataVertex) {
+    constructor(operator?: Operator, left?: DataVertex, right?: DataVertex) {
         this.operator = operator;
         this.left = left;
         this.right = right;
