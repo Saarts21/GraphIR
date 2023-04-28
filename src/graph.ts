@@ -1,4 +1,6 @@
 
+import assert from 'assert';
+
 import { Vertex, StartVertex } from './vertex';
 
 export class Graph {
@@ -9,6 +11,7 @@ export class Graph {
     constructor(vertices?: Array<Vertex>, startVertex?: StartVertex, subgraphs?: Array<Graph>) {
         if (vertices !== undefined) {
             this.vertices = vertices;
+            this.vertices.forEach((vertex, id) => vertex.id = id);
         }
 
         if (startVertex !== undefined) {
@@ -21,6 +24,7 @@ export class Graph {
     }
 
     public addVertex(vertex: Vertex): void {
+        vertex.id = this.vertices.length;
         this.vertices.push(vertex); //TODO: check if vertex already exists
     }
 
@@ -39,6 +43,7 @@ export class Graph {
         }
 
         for (const vertex of this.vertices) {
+            assert(vertex.id !== undefined);
             if (!vertex.verify()) {
                 return false;
             }
