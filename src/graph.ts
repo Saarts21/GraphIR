@@ -2,9 +2,9 @@
 import { Vertex, StartVertex } from './vertex';
 
 export class Graph {
-    private vertices: Array<Vertex> = [];
+    public readonly vertices: Array<Vertex> = [];
     private startVertex?: StartVertex;
-    private subgraphs: Array<Graph> = [];
+    public readonly subgraphs: Array<Graph> = [];
 
     constructor(vertices?: Array<Vertex>, startVertex?: StartVertex, subgraphs?: Array<Graph>) {
         if (vertices !== undefined) {
