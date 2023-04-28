@@ -1,4 +1,6 @@
 
+import { Edge, EdgeCategory } from './edge';
+
 export type Value = number | string | boolean
 export type Operator = string
 
@@ -42,10 +44,11 @@ export abstract class Vertex {
 
     public abstract kind: VertexKind;
     public abstract category: VertexCategory;
+    public abstract edges: Array<Edge>;
     public abstract verify(): boolean;
 }
 
-export interface DataVertex {
+export interface DataVertex extends Vertex {
     category: VertexCategory.Data | VertexCategory.Compound;
 }
 
@@ -58,6 +61,10 @@ export class LiteralVertex extends Vertex implements DataVertex {
     constructor(value?: Value) {
         super();
         this.value = value;
+    }
+
+    public get edges(): Array<Edge> {
+        return [];
     }
 
     verify(): boolean {
@@ -78,6 +85,12 @@ export class SymbolVertex extends Vertex implements DataVertex {
         this.startVertex = startVertex;
     }
 
+    public get edges(): Array<Edge> {
+        return [
+            { source: this, target: this.startVertex, label: 'start', category: EdgeCategory.Association }
+        ];
+    }
+
     verify(): boolean {
         return this.name !== undefined && this.startVertex !== undefined;
     }
@@ -92,6 +105,10 @@ export class ParameterVertex extends Vertex implements DataVertex {
     constructor(position?: number) {
         super();
         this.position = position;
+    }
+
+    public get edges(): Array<Edge> {
+        return [];
     }
 
     verify(): boolean {
@@ -110,6 +127,12 @@ export abstract class UnaryOperationVertex extends Vertex implements DataVertex 
         super();
         this.operator = operator;
         this.operand = operand;
+    }
+
+    public get edges(): Array<Edge> {
+        return [
+            { source: this, target: this.operand, label: 'operand', category: EdgeCategory.Data }
+        ];
     }
 
     verify(): boolean {
@@ -138,6 +161,13 @@ export class BinaryOperationVertex extends Vertex implements DataVertex {
         this.operator = operator;
         this.left = left;
         this.right = right;
+    }
+
+    public get edges(): Array<Edge> {
+        return [
+            { source: this, target: this.left, label: 'left', category: EdgeCategory.Data },
+            { source: this, target: this.right, label: 'right', category: EdgeCategory.Data }
+        ];
     }
 
     verify(): boolean {
@@ -169,12 +199,20 @@ export class PhiVertex extends Vertex implements DataVertex {
         this.operands.push(operand);
     }
 
+    public get edges(): Array<Edge> {
+        const out: Array<Edge> = this.operands.map((operand) => {
+            return { source: this, target: operand.value, label: String(operand.srcBranch.id), category: EdgeCategory.Data }
+        });
+        out.push({ source: this, target: this.merge, label: 'merge', category: EdgeCategory.Association });
+        return out;
+    }
+
     verify(): boolean {
         return this.merge !== undefined && this.operands.length > 1;
     }
 }
 
-export interface ControlVertex {
+export interface ControlVertex extends Vertex {
     category: VertexCategory.Control | VertexCategory.Compound;
 }
 
@@ -187,6 +225,12 @@ export abstract class NonTerminalControlVertex extends Vertex implements Control
     constructor(next?: ControlVertex) {
         super();
         this.next = next;
+    }
+
+    public get edges(): Array<Edge> {
+        return [
+            { source: this, target: this.next, label: 'next', category: EdgeCategory.Control}
+        ]
     }
 
     verify(): boolean {
@@ -215,6 +259,12 @@ export class ReturnVertex extends Vertex implements ControlVertex {
         this.value = value;
     }
 
+    public get edges(): Array<Edge> {
+        return [
+            { source: this, target: this.value, label: 'value', category: EdgeCategory.Data }
+        ];
+    }
+
     verify(): boolean {
         return true;
     }
@@ -233,6 +283,14 @@ export class BranchVertex extends Vertex implements ControlVertex {
         this.condition = condition;
         this.trueNext = trueNext;
         this.falseNext = falseNext;
+    }
+
+    public get edges(): Array<Edge> {
+        return [
+            { source: this, target: this.condition, label: 'condition', category: EdgeCategory.Data },
+            { source: this, target: this.trueNext, label: 'true', category: EdgeCategory.Control },
+            { source: this, target: this.falseNext, label: 'false', category: EdgeCategory.Control }
+        ];
     }
 
     verify(): boolean {
@@ -258,6 +316,12 @@ export class AllocationVertex extends PassVertex implements DataVertex {
         this.constructorSymbol = constructorSymbol;
     }
 
+    public get edges(): Array<Edge> {
+        const out = super.edges;
+        out.push({ source: this, target: this.constructorSymbol, label: 'constructor', category: EdgeCategory.Data });
+        return out;
+    }
+
     verify(): boolean {
         return this.objectType !== undefined && this.constructorSymbol !== undefined && super.verify();
     }
@@ -278,6 +342,16 @@ export class StoreVertex extends PassVertex {
         this.value = value;
     }
 
+    public get edges(): Array<Edge> {
+        const out = super.edges;
+        out.push(
+            { source: this, target: this.object, label: 'object', category: EdgeCategory.Data },
+            { source: this, target: this.property, label: 'property', category: EdgeCategory.Data },
+            { source: this, target: this.value, label: 'value', category: EdgeCategory.Data }
+        );
+        return out;
+    }
+
     verify(): boolean {
         return this.object !== undefined && this.property !== undefined && this.value !== undefined && super.verify();
     }
@@ -294,6 +368,15 @@ export class LoadVertex extends PassVertex implements DataVertex {
         super(next);
         this.object = object;
         this.property = property;
+    }
+
+    public get edges(): Array<Edge> {
+        const out = super.edges;
+        out.push(
+            { source: this, target: this.object, label: 'object', category: EdgeCategory.Data },
+            { source: this, target: this.property, label: 'property', category: EdgeCategory.Data }
+        );
+        return out;
     }
 
     verify(): boolean {
@@ -314,6 +397,20 @@ export class CallVertex extends PassVertex implements DataVertex {
         this.callee = callee;
         this.args = args;
         this.callerObject = callerObject;
+    }
+
+    public get edges(): Array<Edge> {
+        const out = super.edges;
+        out.push({ source: this, target: this.callee, label: 'callee', category: EdgeCategory.Data })
+        if (this.args !== undefined) {
+            this.args.forEach((arg, i) => {
+                out.push({ source: this, target: arg, label: String(i), category: EdgeCategory.Data });
+            });
+        }
+        if (this.callerObject !== undefined) {
+            out.push({ source: this, target: this.callerObject, label: 'object', category: EdgeCategory.Data });
+        }
+        return out;
     }
 
     verify(): boolean {

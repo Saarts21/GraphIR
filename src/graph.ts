@@ -60,3 +60,4 @@ export class Graph {
 }
 
 export * from './vertex';
+export * from './edge';
