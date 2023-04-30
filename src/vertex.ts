@@ -260,7 +260,7 @@ export class ReturnVertex extends Vertex implements ControlVertex {
     }
 
     public get edges(): Array<Edge> {
-        return [
+        return this.value === undefined ? [] : [
             { source: this, target: this.value, label: 'value', category: EdgeCategory.Data }
         ];
     }
