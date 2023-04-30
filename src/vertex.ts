@@ -20,7 +20,6 @@ export enum VertexKind {
     Phi = 'Phi',
     Start = 'Start',
     Pass = 'Pass',
-    End = 'End',
     Return = 'Return',
     Branch = 'Branch',
     Merge = 'Merge',
