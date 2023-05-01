@@ -302,7 +302,7 @@ export class BranchVertex extends ControlVertex {
     public trueNext?: ControlVertex;
     public falseNext?: ControlVertex;
 
-    constructor(condition: DataVertex, trueNext: ControlVertex, falseNext: ControlVertex) {
+    constructor(condition?: DataVertex, trueNext?: ControlVertex, falseNext?: ControlVertex) {
         super();
         this.condition = condition;
         this.trueNext = trueNext;
