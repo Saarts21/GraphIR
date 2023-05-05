@@ -5,7 +5,7 @@ import { Vertex, StartVertex } from './vertex';
 
 export class Graph {
     public readonly vertices: Array<Vertex> = [];
-    private startVertex?: StartVertex;
+    public startVertex?: StartVertex;
     public readonly subgraphs: Array<Graph> = [];
 
     constructor(vertices?: Array<Vertex>, startVertex?: StartVertex, subgraphs?: Array<Graph>) {
