@@ -208,7 +208,7 @@ export class PhiVertex extends Vertex implements DataVertex {
     public readonly operands: Array<PhiOperand>;
     public merge?: MergeVertex;
 
-    constructor(operands?: Array<PhiOperand>, merge?: MergeVertex) {
+    constructor(merge?: MergeVertex, operands?: Array<PhiOperand>) {
         super();
         this.merge = merge;
         if (operands !== undefined) {
