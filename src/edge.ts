@@ -1,5 +1,5 @@
 
-import { Vertex } from './vertex';
+import { ControlVertex, Vertex } from './vertex';
 
 
 export enum EdgeCategory {
@@ -11,13 +11,13 @@ export enum EdgeCategory {
 export class Edge {
     private _source: Vertex;
     private _target?: Vertex;
-    public label: string;
+    private _label: string;
     public category: EdgeCategory;
 
     constructor(source: Vertex, target: Vertex | undefined, label: string, category: EdgeCategory) {
         this._source = source;
         this.target = target;
-        this.label = label;
+        this._label = label;
         this.category = category;
     }
 
@@ -38,5 +38,26 @@ export class Edge {
         if (target) {
             target._inEdges.push(this);
         }
+    }
+
+    public get label(): string {
+        return this._label;
+    }
+
+    public set label(label: string) {
+        this._label = label;
+    }
+}
+
+export class PhiEdge extends Edge {
+    public readonly srcBranch: ControlVertex;
+
+    constructor(source: Vertex, target: Vertex | undefined, srcBranch: ControlVertex, category: EdgeCategory) {
+        super(source, target, '', category);
+        this.srcBranch = srcBranch;
+    }
+
+    public get label(): string {
+        return String(this.srcBranch?.id);
     }
 }

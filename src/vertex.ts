@@ -1,5 +1,5 @@
 
-import { Edge, EdgeCategory } from './edge';
+import { Edge, EdgeCategory, PhiEdge } from './edge';
 
 export type Value = number | string | boolean
 export type Operator = string
@@ -236,22 +236,31 @@ export class BinaryOperationVertex extends Vertex implements DataVertex {
 export type PhiOperand = {value: DataVertex, srcBranch: ControlVertex};
 
 export class PhiVertex extends Vertex implements DataVertex {
-    //TODO: fit to new edges api.
     public get kind() { return VertexKind.Phi; }
     public get category(): VertexCategory.Data { return VertexCategory.Data; }
 
-    public readonly operands: Array<PhiOperand>;
-    public merge?: MergeVertex;
+    private _operandEdges: Array<PhiEdge>;
+    private _mergeEdge: Edge;
 
     constructor(merge?: MergeVertex, operands?: Array<PhiOperand>) {
         super();
-        this.merge = merge;
+        this._mergeEdge = new Edge(this, merge, 'merge', EdgeCategory.Association);
         if (operands !== undefined) {
-            this.operands = operands;
+            this._operandEdges = operands.map((operand) => {
+                return new PhiEdge(this, operand.value, operand.srcBranch, EdgeCategory.Data);
+            });
         }
         else {
-            this.operands = [];
+            this._operandEdges = [];
         }
+    }
+
+    public get merge(): MergeVertex | undefined {
+        return this._mergeEdge.target as MergeVertex | undefined;
+    }
+
+    public set merge(v: MergeVertex | undefined) {
+        this._mergeEdge.target = v;
     }
 
     public get label(): string {
@@ -259,19 +268,15 @@ export class PhiVertex extends Vertex implements DataVertex {
     }
 
     addOperand(operand: PhiOperand) {
-        this.operands.push(operand);
+        this._operandEdges.push(new PhiEdge(this, operand.value, operand.srcBranch, EdgeCategory.Data));
     }
 
-    public get edges(): Array<Edge> {
-        const out: Array<Edge> = this.operands.map((operand) => {
-            return { source: this, target: operand.value, label: String(operand.srcBranch.id), category: EdgeCategory.Data }
-        });
-        out.push({ source: this, target: this.merge, label: 'merge', category: EdgeCategory.Association });
-        return out;
+    public get outEdges(): Array<Edge> {
+        return [ this._mergeEdge, ...this._operandEdges ];
     }
 
     verify(): boolean {
-        return this.merge !== undefined && this.operands.length > 1;
+        return this.merge !== undefined && this._operandEdges.length > 1;
     }
 }
 
