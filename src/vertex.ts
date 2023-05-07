@@ -323,23 +323,35 @@ export class PassVertex extends NonTerminalControlVertex {
 export class ReturnVertex extends ControlVertex {
     public get kind() { return VertexKind.Return; }
 
-    private _valueEdge: Edge;
+    private _valueEdge: Edge | undefined;
 
     constructor(value?: DataVertex) {
         super();
-        this._valueEdge = new Edge(this, value, 'value', EdgeCategory.Data);
+        if (value) {
+            this._valueEdge = new Edge(this, value, 'value', EdgeCategory.Data);
+        }
     }
 
     public get value(): DataVertex | undefined {
-        return this._valueEdge.target as DataVertex | undefined;
+        return this._valueEdge?.target as DataVertex | undefined;
     }
 
     public set value(v: DataVertex | undefined) {
-        this._valueEdge.target = v;
+        if (!this._valueEdge) {
+            this._valueEdge = new Edge(this, v, 'value', EdgeCategory.Data);
+        }
+        else {
+            this._valueEdge.target = v;
+        }
     }
 
     public get outEdges(): Array<Edge> {
-        return [ this._valueEdge ];
+        if (this._valueEdge) {
+            return [ this._valueEdge ];
+        }
+        else {
+            return [];
+        }
     }
 
     verify(): boolean {
