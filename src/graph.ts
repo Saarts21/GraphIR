@@ -5,7 +5,7 @@ import { Vertex, StartVertex } from './vertex';
 
 export class Graph {
     public readonly vertices: Array<Vertex> = [];
-    public startVertex?: StartVertex;
+    private startVertex?: StartVertex;
     public readonly subgraphs: Array<Graph> = [];
 
     constructor(vertices?: Array<Vertex>, startVertex?: StartVertex, subgraphs?: Array<Graph>) {
@@ -35,6 +35,10 @@ export class Graph {
     public setStartVertex(vertex: StartVertex): void {
         this.startVertex = vertex;
         this.addVertex(vertex);
+    }
+
+    public getStartVertex(): StartVertex {
+        return this.startVertex!;
     }
 
     public verify(): boolean {
