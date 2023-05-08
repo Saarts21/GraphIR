@@ -37,6 +37,10 @@ export class Graph {
         this.addVertex(vertex);
     }
 
+    public getStartVertex(): StartVertex {
+        return this.startVertex!;
+    }
+
     public verify(): boolean {
         if (this.startVertex === undefined) {
             return false;
