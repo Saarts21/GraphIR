@@ -90,22 +90,30 @@ export class SymbolVertex extends Vertex implements DataVertex {
     public get kind() { return VertexKind.Symbol; }
     public get category(): VertexCategory.Data { return VertexCategory.Data; }
 
-    private _startEdge: Edge;
+    private _startEdge?: Edge;
 
     public name?: string;
 
     constructor(name?: string, startVertex?: StartVertex) {
         super();
         this.name = name;
-        this._startEdge = new Edge(this, startVertex, 'start', EdgeCategory.Association);
+        this.startVertex = startVertex;
     }
 
     public get startVertex(): StartVertex | undefined {
-        return this._startEdge.target as StartVertex | undefined;
+        return this._startEdge?.target as StartVertex | undefined;
     }
 
     public set startVertex(v: StartVertex | undefined) {
-        this._startEdge.target = v;
+        if (this._startEdge) {
+            this._startEdge.target = v;
+        }
+        if (v) {
+            this._startEdge = new Edge(this, v, 'start', EdgeCategory.Association);
+        }
+        else {
+            this._startEdge = undefined;
+        }
     }
 
     public get label(): string {
@@ -113,7 +121,12 @@ export class SymbolVertex extends Vertex implements DataVertex {
     }
 
     public get outEdges(): Array<Edge> {
-        return [ this._startEdge ];
+        if (this._startEdge) {
+            return [ this._startEdge ];
+        }
+        else {
+            return [];
+        }
     }
 
     verify(): boolean {
