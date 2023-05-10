@@ -29,6 +29,30 @@ export enum VertexKind {
     Call = 'Call',
 }
 
+export enum BinaryOperation {
+    Add = '+',
+    Sub = '-',
+    Mul = '*',
+    Div = '/',
+    Assign = '=',
+    LessThan = '<',
+    GreaterThan = '>',
+    LessThanEqual = '<=',
+    GreaterThanEqual = '>=',
+    EqualEqual = '==',
+    NotEqual = '!=',
+    EqualEqualEqual = '===',
+    NotEqualEqual = '!==',
+    And = '&&',
+    Or = '||'
+}
+
+export enum UnaryOperation {
+    Plus = '+',
+    Minus = '-',
+    Not = '!'
+}
+
 export abstract class Vertex {
     /*@internal*/
     private _id: number = -1;
