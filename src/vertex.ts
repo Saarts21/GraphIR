@@ -474,7 +474,7 @@ export class AllocationVertex extends PassVertex implements DataVertex {
     }
 
     verify(): boolean {
-        return this.objectType !== undefined && this.constructorSymbol !== undefined && super.verify();
+        return this.constructorSymbol !== undefined && super.verify();
     }
 }
 
