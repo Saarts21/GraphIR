@@ -472,10 +472,6 @@ export class AllocationVertex extends PassVertex implements DataVertex {
     public get outEdges(): Array<Edge> {
         return [...super.outEdges, this._constructorEdge];
     }
-
-    verify(): boolean {
-        return this.constructorSymbol !== undefined && super.verify();
-    }
 }
 
 export class StoreVertex extends PassVertex {
