@@ -445,6 +445,10 @@ export class BranchVertex extends ControlVertex {
 
 export class MergeVertex extends NonTerminalControlVertex { // ? should add corresponding branch?
     public get kind() { return VertexKind.Merge; }
+
+    public get phiVertices(): Array<PhiVertex> {
+        return this.inEdges.filter((edge) => edge.source instanceof PhiVertex).map((edge) => edge.source as PhiVertex);
+    }
 }
 
 export class AllocationVertex extends PassVertex implements DataVertex {
